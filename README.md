@@ -1,205 +1,119 @@
 # Object-Oriented Programming (OOP) Principles
 
-Object-Oriented Programming (OOP) is a paradigm that structures software design around objects rather than functions and logic. OOP helps improve code reusability, scalability, and maintainability. This document covers the core principles of OOP and the SOLID principles.
+Object-Oriented Programming (OOP) is a paradigm that structures software design around objects rather than functions and logic. OOP helps improve code reusability, scalability, and maintainability. This repository provides a comprehensive guide to understanding and applying OOP principles and SOLID design principles in Python.
 
-## Core Principles of OOP
+## Table of Contents
 
-### 1. Encapsulation
-Encapsulation is the practice of bundling data (variables) and methods that operate on the data into a single unit, usually a class. It restricts direct access to some components and protects the integrity of the object.
+1. [Introduction](#introduction)
+2. [Core Principles of OOP](#core-principles)
+3. [SOLID Principles](#solid-principles)
+4. [Practical Exercises](#practical-exercises)
+5. [Design Patterns](#design-patterns)
+6. [Getting Started](#getting-started)
+7. [Code Examples](#code-examples)
 
-```python
-class Car:
-    def __init__(self, brand, model):
-        self.__brand = brand  # Private variable
-        self.__model = model  # Private variable
+## What You'll Learn
 
-    def get_car_info(self):
-        return f"{self.__brand} {self.__model}"
+By the end of this repository, you will understand:
+- **Encapsulation**: Bundling data and methods while controlling access
+- **Inheritance**: Code reuse through class hierarchies
+- **Polymorphism**: Using objects interchangeably through shared interfaces
+- **Abstraction**: Hiding complexity and exposing only relevant functionality
+- **SOLID Principles**: Five design principles for maintainable and scalable code
 
-car = Car("Toyota", "Corolla")
-print(car.get_car_info())  # Toyota Corolla
-```
+## Introduction
 
-### 2. Inheritance
-Inheritance allows a class (child) to inherit attributes and methods from another class (parent), promoting code reusability.
+### [Introduction to OOP](./sections/00_introduction.md)
+Start here if you are new to Object-Oriented Programming. This section explains the fundamental building blocks before any design principles are introduced.
 
-```python
-class Vehicle:
-    def __init__(self, brand):
-        self.brand = brand
-    
-    def drive(self):
-        return "Driving..."
+**Topics covered:**
+- What is Object-Oriented Programming?
+- Classes and Objects
+- The `__init__` constructor and `self`
+- Instance attributes vs class attributes
+- Instance methods, class methods, and static methods
+- Special (dunder) methods
 
-class Car(Vehicle):
-    def __init__(self, brand, model):
-        super().__init__(brand)
-        self.model = model
+## Core Principles
 
-car = Car("Toyota", "Camry")
-print(car.brand)  # Toyota
-print(car.drive())  # Driving...
-```
+### [Core Principles of OOP](./sections/01_core_principles.md)
+A foundational guide covering the four pillars of object-oriented design. Learn how to structure your code for better maintainability and reusability.
 
-### 3. Polymorphism
-Polymorphism allows different classes to be treated as instances of the same class through a shared interface. This enables methods to be used interchangeably.
-
-```python
-class Animal:
-    def speak(self):
-        pass
-
-class Dog(Animal):
-    def speak(self):
-        return "Woof!"
-
-class Cat(Animal):
-    def speak(self):
-        return "Meow!"
-
-animals = [Dog(), Cat()]
-for animal in animals:
-    print(animal.speak())
-```
-
-### 4. Abstraction
-Abstraction is the process of hiding the internal details of an implementation and only exposing relevant functionalities. It helps in reducing complexity by allowing the user to interact with an object at a high level without needing to understand its internal workings.
-
-In Python, abstraction is typically implemented using abstract classes and methods.
-```python
-from abc import ABC, abstractmethod
-
-class Animal(ABC):
-    @abstractmethod
-    def make_sound(self):
-        """This method must be implemented by subclasses."""
-        pass
-
-class Dog(Animal):
-    def make_sound(self):
-        return "Bark"
-
-class Cat(Animal):
-    def make_sound(self):
-        return "Meow"
-
-# Cannot instantiate an abstract class
-# animal = Animal()  # This would raise an error
-
-dog = Dog()
-print(dog.make_sound())  # Bark
-```
-
-By using abstraction, we enforce a contract that subclasses must follow, ensuring consistency and structure in the codebase.
-
----
+**Topics covered:**
+- Encapsulation
+- Inheritance
+- Polymorphism
+- Abstraction
 
 ## SOLID Principles
-The SOLID principles are five design principles that help improve software maintainability and scalability.
 
-### 1. Single Responsibility Principle (SRP)
-A class should have only one reason to change, meaning it should have only one job.
+### [SOLID Design Principles](./sections/02_SOLID_principles.md)
+Five essential design principles that help create robust, maintainable, and scalable applications.
 
-```python
-class ReportGenerator:
-    def generate(self):
-        return "Report data"
+**Topics covered:**
+- Single Responsibility Principle (SRP)
+- Open/Closed Principle (OCP)
+- Liskov Substitution Principle (LSP)
+- Interface Segregation Principle (ISP)
+- Dependency Inversion Principle (DIP)
 
-class ReportPrinter:
-    def print_report(self, report):
-        print(report)
+## Practical Exercises
 
-report = ReportGenerator().generate()
-ReportPrinter().print_report(report)
-```
+### [Practical Exercises](./sections/03_practical_exercises.md)
+Hands-on exercises to reinforce your understanding of OOP and SOLID principles with real-world scenarios.
 
-### 2. Open/Closed Principle (OCP)
-Entities should be open for extension but closed for modification.
+**Exercises:**
+- Bank Account System (Encapsulation)
+- Shape Calculator (Inheritance & Polymorphism)
+- E-commerce Discount System (SOLID Principles)
+- Email Notification System (Dependency Injection)
+- Library Management System (All Principles)
+- Observer Pattern Implementation
 
-```python
-from abc import ABC, abstractmethod
+## Design Patterns
 
-class Discount(ABC):
-    @abstractmethod
-    def apply_discount(self, price):
-        pass
+### [Design Patterns & Best Practices](./sections/04_design_patterns.md)
+Explore commonly-used design patterns and techniques for professional Python development.
 
-class PercentageDiscount(Discount):
-    def apply_discount(self, price):
-        return price * 0.9  # 10% off
+**Topics covered:**
+- Singleton Pattern
+- Factory Pattern
+- Strategy Pattern
+- Decorator Pattern
+- Context Manager Pattern
+- Template Method Pattern
+- Mixin Pattern
+- Best Practices & Anti-Patterns
 
-class FixedDiscount(Discount):
-    def apply_discount(self, price):
-        return price - 10
+## Getting Started
 
-pricing = PercentageDiscount()
-print(pricing.apply_discount(100))  # 90.0
-```
+Each section includes practical Python examples that demonstrate the principles in action. You can find working code examples in the `code/` directory:
 
-### 3. Liskov Substitution Principle (LSP)
-Subtypes must be substitutable for their base types without altering the correctness of the program.
+- `class_definitions.py` - Examples of classes, instance/class methods, and static methods
+- `encapsulation.py` - Private attributes and property decorators
+- `inheritance.py` - Class hierarchies and method overriding
+- `SOLID/dependency_injection.py` - Practical implementation of dependency injection
 
-```python
-class Bird:
-    def fly(self):
-        return "Flying"
+## 🚀 Next Steps
 
-class Penguin(Bird):
-    def fly(self):
-        raise Exception("Penguins can't fly")
+1. Start with [Introduction](./sections/00_introduction.md) to learn the fundamentals
+2. Read [Core Principles](./sections/01_core_principles.md) to understand the four pillars
+3. Review the code examples in the `code/` directory
+4. Study the [SOLID Principles](./sections/02_SOLID_principles.md) to write better code
+5. Apply these principles to your own projects
 
-# Violates LSP because Penguin cannot fully replace Bird
-```
+## Tips for Learning
 
-### 4. Interface Segregation Principle (ISP)
-Clients should not be forced to depend on interfaces they do not use.
+- Read each principle carefully and understand the "why" behind it
+- Run the code examples and experiment with modifications
+- Think about how these principles apply to your own codebase
+- Refer to the anti-patterns section to understand what to avoid
 
-```python
-class Printer:
-    def print(self):
-        pass
+## Further Reading
 
-class Scanner:
-    def scan(self):
-        pass
+- [Design Patterns: Elements of Reusable Object-Oriented Software](https://en.wikipedia.org/wiki/Design_Patterns) by Gang of Four
+- [Clean Code](https://en.wikipedia.org/wiki/Code_smell) by Robert C. Martin
+- [Python ABC Module Documentation](https://docs.python.org/3/library/abc.html)
 
-class MultiFunctionPrinter(Printer, Scanner):
-    def print(self):
-        return "Printing..."
-
-    def scan(self):
-        return "Scanning..."
-```
-
-### 5. Dependency Inversion Principle (DIP)
-High-level modules should not depend on low-level modules. Both should depend on abstractions.
-
-```python
-class Database(ABC):
-    @abstractmethod
-    def connect(self):
-        pass
-
-class MySQLDatabase(Database):
-    def connect(self):
-        return "Connected to MySQL"
-
-class App:
-    def __init__(self, database: Database):
-        self.database = database
-    
-    def start(self):
-        return self.database.connect()
-
-app = App(MySQLDatabase())
-print(app.start())  # Connected to MySQL
-```
-
----
-
-## Conclusion
-Understanding and applying OOP principles and the SOLID design principles can help developers create robust, maintainable, and scalable applications. By leveraging encapsulation, inheritance, polymorphism, and abstraction, alongside SOLID principles, you can write clean, efficient, and modular code.
-
----
 
 
