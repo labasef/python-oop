@@ -118,8 +118,8 @@ class ElectricCar(Vehicle):
         return f"{base}, specifically an electric vehicle"
 
 
-car     = Car()
-ev      = ElectricCar()
+car = Car()
+ev = ElectricCar()
 
 print(car.drive())       # Driving on roads       ← overridden
 print(car.describe())    # I am a vehicle         ← inherited
@@ -142,7 +142,7 @@ print(ev.describe())     # I am a vehicle, specifically an electric vehicle
 ## 3. Polymorphism
 Polymorphism allows different classes to be treated as instances of the same class through a shared interface. This enables methods to be used interchangeably.
 
-> 🔗 Polymorphism relies on **method overriding** (covered above in Inheritance): each subclass overrides the same method, and the correct version is selected automatically at runtime — this is called *dynamic dispatch*.
+> Polymorphism relies on **method overriding** (covered above in Inheritance): each subclass overrides the same method, and the correct version is selected automatically at runtime — this is called *dynamic dispatch*.
 
 ```mermaid
 classDiagram
