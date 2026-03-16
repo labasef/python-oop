@@ -438,9 +438,9 @@ print(product)  # Keyboard (£49.99) — 20 in stock
 
 ---
 
-## ➡️ Next Steps
+## Next Steps
 
-Now that you understand the building blocks, move on to the four core principles of OOP:
+Now that you understand the building blocks, move on to the four core concepts of OOP:
 
-👉 **[Core Principles of OOP](./01_core_principles.md)**
+**[Core Concepts of OOP](./01_core_concepts.md)**
 

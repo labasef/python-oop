@@ -6,9 +6,9 @@ Understanding and applying OOP principles and the SOLID design principles can he
 
 ---
 
-## 🎯 Key Takeaways
+## Key Takeaways
 
-### Core Principles
+### Core Concepts
 1. **Encapsulation** protects data integrity and reduces coupling
 2. **Inheritance** promotes code reuse but can lead to tight coupling
 3. **Polymorphism** enables flexible, interchangeable code
