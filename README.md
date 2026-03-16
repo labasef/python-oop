@@ -93,8 +93,17 @@ Each section includes practical Python examples that demonstrate the principles 
 - `encapsulation.py` - Private attributes and property decorators
 - `inheritance.py` - Class hierarchies and method overriding
 - `SOLID/dependency_injection.py` - Practical implementation of dependency injection
+- `dunder/` - Dunder method scripts, one file per category (all medical-themed):
+  - `construction.py` — `__new__`, `__init__`, `__del__`
+  - `representation.py` — `__str__`, `__repr__`, `__format__`
+  - `comparison.py` — `__eq__`, `__lt__`, `__hash__` + `@total_ordering`
+  - `arithmetic.py` — `__add__`, `__sub__`, `__mul__`, `__iadd__`, `__abs__`, `__round__`
+  - `containers.py` — `__len__`, `__getitem__`, `__setitem__`, `__delitem__`, `__contains__`, `__iter__`
+  - `attribute_access.py` — `__getattr__`, `__getattribute__`, `__setattr__`, `__delattr__`
+  - `callable.py` — `__call__`
+- `design_patterns/` - One script per design pattern (all medical-themed)
 
-## 🚀 Next Steps
+## Next Steps
 
 1. Start with [Introduction](./sections/00_introduction.md) to learn the fundamentals
 2. Read [Core Principles](./sections/01_core_principles.md) to understand the four pillars
