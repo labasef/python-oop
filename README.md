@@ -106,7 +106,7 @@ Each section includes practical Python examples that demonstrate the principles 
 ## Next Steps
 
 1. Start with [Introduction](./sections/00_introduction.md) to learn the fundamentals
-2. Read [Core Principles](./sections/01_core_principles.md) to understand the four pillars
+2. Read [Core Concepts](./sections/01_core_concepts.md) to understand the four pillars
 3. Review the code examples in the `code/` directory
 4. Study the [SOLID Principles](./sections/02_SOLID_principles.md) to write better code
 5. Apply these principles to your own projects

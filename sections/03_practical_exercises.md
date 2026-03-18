@@ -287,8 +287,12 @@ After completing these exercises, verify that your code:
 
 When you're ready to compare your work, the full solutions are available here:
 
-👉 **[View Solutions](./03_practical_exercises_solutions.md)**
+[View Solutions](./03_practical_exercises_solutions.md)
 
 Each solution includes a short explanation of which OOP and SOLID principles are demonstrated.
+
+---
+
+[Back to Menu](../README.md) | [Previous: SOLID Principles](./02_SOLID_principles.md) | [Next: Solutions](./03_practical_exercises_solutions.md)
 
 

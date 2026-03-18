@@ -1,6 +1,6 @@
 # Design Patterns & Best Practices
 
-## 🎯 Overview
+## Overview
 
 **Design patterns** are reusable solutions to commonly occurring problems in software design. They are not finished pieces of code you copy and paste — they are templates or blueprints that describe how to solve a problem in a way that has been proven to work across many different contexts.
 
@@ -640,6 +640,217 @@ Building code for features that "might be needed". Use YAGNI.
 
 ---
 
+## Design Patterns Criticism
+
+While design patterns are powerful tools, they have significant drawbacks that are often overlooked. Understanding these criticisms is essential to using patterns *wisely* rather than blindly.
+
+### The Overuse Problem
+
+The biggest risk with design patterns is **applying them when they are not needed**. Patterns add complexity, and complexity is the enemy of maintainability.
+
+```python
+# ❌ Over-engineered: a Factory pattern for a simple task
+class LoggerFactory:
+    @staticmethod
+    def create_logger(log_type: str):
+        if log_type == "console":
+            return ConsoleLogger()
+        elif log_type == "file":
+            return FileLogger()
+
+# Better: just instantiate directly
+logger = ConsoleLogger()
+```
+
+**Why this happens**:
+- Developers learn patterns and see them everywhere
+- Pressure to write "enterprise-grade" code
+- Cargo culting: copying patterns without understanding context
+- Pattern names become status symbols
+
+### Patterns Hide Simplicity
+
+A classic criticism from Rich Hickey and the Clojure community: **patterns are often workarounds for language limitations**. In languages with poor abstraction support, you need complex patterns. Python's flexibility sometimes makes patterns unnecessary.
+
+```python
+# Java (factory pattern needed because no first-class functions):
+PaymentProcessor processor = PaymentProcessorFactory.create("credit_card");
+
+# Python (just pass the function):
+def process_payment(processor: Callable[[float], str], amount: float):
+    return processor(amount)
+
+process_payment(credit_card_processor, 99.99)
+```
+
+### Language Specificity — The Gang of Four Problem
+
+The classic 23 GoF patterns were designed for statically-typed languages like Java and C++ (published 1994, before Python was widely used). Many are less relevant or unnecessary in Python:
+
+| Pattern | Language (GoF era) | Python | Status |
+|---|---|---|---|
+| **Factory** | Java/C++ | Still useful | Common |
+| **Template Method** | Java/C++ | Often use inheritance — consider composition | Conditional |
+| **Singleton** | Java/C++ | Can use modules instead | Python alternative exists |
+| **Adapter** | Java/C++ | Duck typing makes this rare | Less necessary |
+| **Strategy** | Java/C++ | Use first-class functions | Better alternatives exist |
+| **Decorator** | Java/C++ | Python has `@decorator` syntax | Python idiom |
+
+**Python has alternatives**:
+- Modules as singletons (more Pythonic than Singleton class)
+- First-class functions instead of Strategy objects
+- Duck typing instead of Adapter
+- Decorators instead of Wrapper objects
+
+### Analysis Paralysis
+
+Too many patterns lead to decision paralysis: *"Should I use Strategy or Factory? Decorator or Adapter?"* This paralysis delays shipping.
+
+```python
+# This 2-hour debate led to a 5-minute solution:
+# Just instantiate the payment processor directly.
+```
+
+### Difficulty for Juniors
+
+Patterns are expert-level abstractions. Teaching a junior developer patterns before fundamentals can backfire:
+
+1. They memorise patterns without understanding when to use them
+2. They see patterns as always superior to simple code
+3. They struggle to read code that doesn't follow "the pattern"
+
+**Better approach**: Teach fundamentals (SOLID, composition, polymorphism), then patterns as *applications* of those principles.
+
+### Over-Abstraction Hides Intent
+
+A well-named variable or function is clearer than a design pattern:
+
+```python
+# ❌ Using a pattern makes intent unclear
+class PaymentProcessorFactory:
+    @staticmethod
+    def create(method: str):
+        # ... 50 lines of code
+        return SomeProcessor()
+
+# ✅ Clear, direct intent
+def get_payment_processor(method: str):
+    # ... same code, but obvious what it does
+    return SomeProcessor()
+```
+
+### Patterns Can Encourage Bad Design
+
+Some patterns are themselves anti-patterns when applied wrongly:
+
+```python
+# ❌ Singleton used to share global state
+class Database(Singleton):
+    pass
+
+# This creates tight coupling and makes testing impossible
+database_instance = Database()
+database_instance.query("SELECT ...")  # Hidden dependency
+
+# ✅ Better: pass it as a parameter
+def process_user(user_id: int, db: Database):
+    return db.query(f"SELECT * FROM users WHERE id = {user_id}")
+```
+
+### The Maintenance Cost
+
+More patterns = more code to read, understand, and maintain.
+
+```python
+# Simple version (10 lines)
+class EmailSender:
+    def send(self, to: str, subject: str, body: str):
+        # ... implementation
+
+# Pattern version (60+ lines)
+class EmailSenderFactory:
+    # ...
+class EmailSenderStrategy:
+    # ...
+class EmailSenderDecorator:
+    # ...
+```
+
+When the simple version does the job, the pattern version has a negative ROI (return on investment).
+
+---
+
+### When NOT to Use Patterns
+
+Before reaching for a pattern, ask these questions:
+
+| Question | If "Yes" | Decision |
+|---|---|---|
+| **Is the problem already simple?** | Yes | Don't use a pattern; keep it simple |
+| **Will this code be read by 10+ people?** | No | Simple code might be enough |
+| **Will I need to swap implementations?** | No | Don't use Factory, Strategy, etc. |
+| **Is this a greenfield project?** | Yes | Start simple; add patterns when *needs* appear |
+| **Do I fully understand this pattern?** | No | Don't use it; study first or find a simpler approach |
+| **Will adding this pattern reduce code duplication?** | No | The cost outweighs the benefit |
+
+### Principles Over Patterns
+
+Favour understanding principles over memorising patterns:
+
+```python
+# Bad: "I learned Factory Pattern, so I'll use it"
+# Good: "I need to decouple object creation from usage, so I'll use DIP"
+# The pattern (Factory) is just one way to achieve the principle (DIP)
+```
+
+The principles are timeless:
+- **SOLID**: Regardless of language, works forever
+- **Composition over inheritance**: Applies everywhere
+- **Explicit over implicit**: Python's Zen
+
+Patterns are historical solutions to those principles. As languages evolve, patterns change.
+
+---
+
+### A Balanced Perspective
+
+Patterns are *not* bad. They are useful when:
+
+1. ✅ The problem is genuinely complex
+2. ✅ You're solving it for the second (or hundredth) time
+3. ✅ Your team understands and agrees on the pattern
+4. ✅ The pattern *reduces* overall complexity
+5. ✅ The code is read by many people who benefit from recognising the pattern
+
+Patterns *are* problematic when:
+
+1. ❌ Applied to simple problems (premature optimisation)
+2. ❌ Used to feel "smart" or "enterprise-grade"
+3. ❌ Chosen without understanding alternatives
+4. ❌ Made mandatory across a codebase
+5. ❌ Used in domain-specific ways where a simple solution exists
+
+---
+
+### The Best Rule
+
+> **Make it work. Make it right. Make it fast — in that order.**
+> — Kent Beck
+
+1. **Make it work**: Write simple, clear code that solves the problem
+2. **Make it right**: Refactor if patterns emerge naturally from the code
+3. **Make it fast**: Optimise only if performance matters
+
+Do NOT:
+
+1. ❌ Design patterns into code that hasn't been written yet
+2. ❌ Use patterns because you learned them yesterday
+3. ❌ Assume patterns make code better
+
+**Simplicity is not the goal — clarity is.** Sometimes clarity requires a pattern. Often it does not.
+
+---
+
 ## Resources
 
 - "Design Patterns: Elements of Reusable Object-Oriented Software" - Gang of Four
@@ -647,3 +858,6 @@ Building code for features that "might be needed". Use YAGNI.
 - Real Python Design Patterns
 - Python Design Patterns Online
 
+---
+
+[Back to Menu](../README.md) | [Previous: Solutions](./03_practical_exercises_solutions.md) | [Next: Conclusion](./conclusion.md)

@@ -777,3 +777,6 @@ for entry in stock.get_history():
 - **DIP**: `StockPrice` depends on the abstract `Observer`, not on any concrete class
 - **SRP**: Each observer has a single, focused reaction to a price change
 
+---
+
+[Back to Menu](../README.md) | [Previous: Exercises](./03_practical_exercises.md) | [Next: Design Patterns](./04_design_patterns.md)

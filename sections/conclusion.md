@@ -56,7 +56,7 @@ Understanding and applying OOP principles and the SOLID design principles can he
 
 ---
 
-## 🚀 Practical Steps to Improve Your Code
+## Practical Steps to Improve Your Code
 
 ### Step 1: Audit Your Code
 - Review existing classes for SRP violations
@@ -80,7 +80,7 @@ Understanding and applying OOP principles and the SOLID design principles can he
 
 ---
 
-## 📚 Further Learning Resources
+## Further Learning Resources
 
 - **Books**:
   - "Clean Code" by Robert C. Martin
@@ -89,12 +89,12 @@ Understanding and applying OOP principles and the SOLID design principles can he
 
 - **Python Resources**:
   - [Python ABC Module Documentation](https://docs.python.org/3/library/abc.html)
-  - [PEP 8 Style Guide](https://www.python.org/dev/peps/pep-0008/)
-  - [Real Python OOP Tutorials](https://realpython.com/python-oops-concepts/)
+  - [Design Patterns in Python](https://refactoring.guru/design-patterns/python)
+  - [Real Python OOP Tutorials](https://realpython.com/python3-object-oriented-programming/)
 
 ---
 
-## 🎓 Next Steps
+## Next Steps
 
 1. **Apply to Real Projects**: Take these principles to your current projects
 2. **Code Katas**: Practice with design pattern exercises on platforms like CodeWars
@@ -103,4 +103,6 @@ Understanding and applying OOP principles and the SOLID design principles can he
 
 Remember: **The best code is code that is easy to understand, maintain, and extend. Always optimize for readability and maintainability.**
 
+---
 
+[Back to Menu](../README.md) | [Previous: Design Patterns](./04_design_patterns.md)

@@ -4,9 +4,11 @@
 
 By the end of this section, you should be able to:
 - Understand what Object-Oriented Programming is and why it exists
+- Recognise that Python's built-in types (`str`, `list`, `dict`, …) are already objects
 - Define a class and instantiate objects from it
 - Distinguish between class attributes and instance attributes
 - Understand the different types of methods and when to use each
+- Explain what dunder methods are, why they exist, and how they define an object's behaviour
 - Read and write basic Python classes with confidence
 
 ---
@@ -95,6 +97,89 @@ print(bella.name)  # Bella
 ```
 
 Continuing the house analogy: `rex` and `bella` are two different houses built from the same plan. Painting one red does not affect the other.
+
+---
+
+## Commonly Used Built-in Objects
+
+You have almost certainly been using objects since your very first line of Python — you just may not have called them that. Every value in Python, whether a number, a string, or a list, is an **object**. Each one is an instance of a built-in class with its own attributes and methods.
+
+> 💡 You can verify this at any time: `type("hello")` returns `<class 'str'>`. Strings are instances of the `str` class.
+
+### Strings (`str`)
+
+A string is an object. It has methods that let you query and transform it without modifying the original (strings are **immutable** — they cannot be changed in place).
+
+```python
+greeting = "hello, world"   # an instance of str
+
+print(greeting.upper())                     # "HELLO, WORLD"
+print(greeting.capitalize())                # "Hello, world"
+print(greeting.replace("world", "Python")) # "hello, Python"
+print(greeting.split(", "))                 # ["hello", "world"]
+print(greeting.startswith("he"))            # True
+```
+
+### Lists (`list`)
+
+A list is a mutable, ordered collection. It is an object with methods for adding, removing, and searching its contents.
+
+```python
+fruits = ["banana", "apple", "cherry"]  # an instance of list
+
+fruits.append("mango")       # add to the end
+fruits.insert(0, "avocado")  # insert at position 0
+fruits.sort()                # sort in-place
+fruits.remove("apple")       # remove by value
+print(len(fruits))           # 4  — len() works because list defines __len__
+```
+
+### Dictionaries (`dict`)
+
+A dictionary maps keys to values. It is an object with methods for accessing, modifying, and iterating over its contents.
+
+```python
+patient = {"name": "Alice", "age": 34, "blood_type": "A+"}  # an instance of dict
+
+print(patient.keys())                    # dict_keys(["name", "age", "blood_type"])
+print(patient.get("age"))                # 34
+print(patient.get("height", "unknown")) # "unknown" — safe default
+patient.update({"age": 35})              # update in-place
+```
+
+### Other Everyday Objects
+
+| Type | Class | Example |
+|---|---|---|
+| Whole number | `int` | `42` |
+| Decimal number | `float` | `3.14` |
+| True / False | `bool` | `True` |
+| Ordered, immutable sequence | `tuple` | `(1, 2, 3)` |
+| Unique, unordered collection | `set` | `{1, 2, 3}` |
+| Key-value mapping | `dict` | `{"a": 1}` |
+
+### Everything is an Object
+
+Because every value is an object, the dot-notation you use to call methods (`greeting.upper()`) is exactly the same mechanism you will use with your own classes:
+
+```python
+# Built-in object
+name = "alice"
+print(name.capitalize())   # Alice
+
+# Your own object
+class Patient:
+    def __init__(self, name):
+        self.name = name
+
+    def greet(self):
+        return f"Hello, {self.name.capitalize()}"
+
+p = Patient("alice")
+print(p.greet())           # Hello, Alice
+```
+
+This uniformity is one of Python's greatest strengths. Learning to write classes is simply learning to create your own types that behave like Python's built-in ones.
 
 ---
 
@@ -297,58 +382,323 @@ print(BankAccount.validate_amount(-10))  # False
 
 ## Special (Dunder) Methods
 
-Python classes can implement **special methods** (also called *dunder* methods, short for "double underscore") to integrate with built-in Python behaviour.
+### What Are Dunder Methods?
+
+**Dunder methods** (short for *double underscore*) are special methods whose names begin and end with two underscores: `__init__`, `__str__`, `__len__`, and so on. They are also called **magic methods** or **special methods**.
+
+They are the mechanism through which Python lets your classes hook into the language itself. When you write `print(obj)`, Python calls `obj.__str__()`. When you write `len(obj)`, Python calls `obj.__len__()`. When you write `a + b`, Python calls `a.__add__(b)`.
+
+> 💡 You never call dunder methods directly (e.g. `obj.__str__()`). You trigger them *indirectly* through Python syntax and built-in functions. This is by design — it keeps user code clean.
+
+### Why Are They So Important?
+
+Dunder methods are the foundation of Python's **data model** — the set of rules that govern how all objects in the language behave. They are why `str`, `list`, `dict`, and `int` all feel natural and consistent to use.
+
+By implementing dunders in your own classes, you gain three concrete benefits:
+
+| Benefit | What it means in practice |
+|---|---|
+| **Native integration** | Your objects work with `print()`, `len()`, `sorted()`, `in`, `+`, `==`, `for`, `with`, and every other Python built-in |
+| **Expressive code** | Callers can write `record_a == record_b` instead of `record_a.is_equal_to(record_b)` |
+| **Duck typing** | Any object that implements the right dunders can be used wherever Python expects a certain kind of object — no inheritance required |
+
+### Before and After: The Difference Dunders Make
+
+Without dunders, your objects are opaque and awkward to work with:
 
 ```python
-class Vector:
-    def __init__(self, x: float, y: float):
-        self.x = x
-        self.y = y
+class PatientRecord:
+    def __init__(self, patient_id: str, name: str, age: int):
+        self.patient_id = patient_id
+        self.name       = name
+        self.age        = age
 
-    def __str__(self) -> str:
-        """Called by print() and str()."""
-        return f"Vector({self.x}, {self.y})"
+record = PatientRecord("P001", "Alice", 34)
 
-    def __repr__(self) -> str:
-        """Called in the REPL and by repr()."""
-        return f"Vector(x={self.x}, y={self.y})"
+# ❌ Printing gives you nothing useful
+print(record)          # <__main__.PatientRecord object at 0x7f3a...>
 
-    def __add__(self, other: "Vector") -> "Vector":
-        """Called when using the + operator."""
-        return Vector(self.x + other.x, self.y + other.y)
-
-    def __eq__(self, other: "Vector") -> bool:
-        """Called when using the == operator."""
-        return self.x == other.x and self.y == other.y
-
-    def __len__(self) -> int:
-        """Called by len()."""
-        return 2  # A 2D vector always has 2 components
-
-
-v1 = Vector(1, 2)
-v2 = Vector(3, 4)
-
-print(v1)          # Vector(1, 2)
-print(v1 + v2)     # Vector(4, 6)
-print(v1 == v2)    # False
-print(len(v1))     # 2
+# ❌ Comparing two records is meaningless
+r1 = PatientRecord("P001", "Alice", 34)
+r2 = PatientRecord("P001", "Alice", 34)
+print(r1 == r2)        # False  ← compares memory addresses, not data!
 ```
 
-Common dunder methods you'll encounter:
+With dunders, the same class becomes fluent and Pythonic:
+
+```python
+class PatientRecord:
+    def __init__(self, patient_id: str, name: str, age: int):
+        self.patient_id = patient_id
+        self.name       = name
+        self.age        = age
+
+    def __str__(self) -> str:
+        return f"Patient {self.patient_id}: {self.name}, age {self.age}"
+
+    def __repr__(self) -> str:
+        return f"PatientRecord('{self.patient_id}', '{self.name}', {self.age})"
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, PatientRecord):
+            return NotImplemented
+        return self.patient_id == other.patient_id
+
+    def __lt__(self, other: "PatientRecord") -> bool:
+        """Enables sorting by age."""
+        return self.age < other.age
+
+    def __hash__(self) -> int:
+        """Enables use in sets and as dict keys."""
+        return hash(self.patient_id)
+
+r1 = PatientRecord("P001", "Alice", 34)
+r2 = PatientRecord("P002", "Bob",   28)
+r3 = PatientRecord("P001", "Alice", 34)
+
+# ✅ Readable output
+print(r1)              # Patient P001: Alice, age 34
+
+# ✅ Meaningful equality
+print(r1 == r3)        # True  ← same patient_id
+
+# ✅ Sortable
+records = [r1, r2]
+print(sorted(records)) # [Patient P002: Bob, age 28, Patient P001: Alice, age 34]
+
+# ✅ Usable in sets
+seen = {r1, r2, r3}
+print(len(seen))       # 2  ← r1 and r3 are the same patient
+```
+
+### How Dunders Define What an Object *Is*
+
+A Python object is, in a sense, *defined by the dunders it implements*. Different sets of dunders correspond to different **protocols** — informal contracts that say "an object that has these methods can be treated as this kind of thing":
+
+```mermaid
+graph TD
+    A[Your Class] --> B{Which dunders\ndoes it implement?}
+    B --> C["__str__, __repr__\n→ printable / readable"]
+    B --> D["__eq__, __lt__, __hash__\n→ comparable / sortable / hashable"]
+    B --> E["__len__, __getitem__, __iter__\n→ behaves like a container / sequence"]
+    B --> F["__add__, __sub__, __mul__\n→ supports arithmetic operators"]
+    B --> G["__enter__, __exit__\n→ usable as a context manager (with)"]
+    B --> H["__call__\n→ callable like a function"]
+```
+
+You do not need to inherit from a special base class to satisfy a protocol. If your object has `__len__` and `__getitem__`, Python will treat it as a sequence — full stop. This is **duck typing**: *"If it walks like a duck and quacks like a duck, it is a duck."*
+
+### Dunder Methods by Category
+
+#### Construction & Representation
+
+| Method | Triggered by | Purpose |
+|---|---|---|
+| `__init__(self, ...)` | `MyClass(...)` | Initialise instance state |
+| `__new__(cls, ...)` | `MyClass(...)` | Create the instance (rare to override) |
+| `__del__(self)` | Object garbage-collected | Cleanup hook |
+| `__str__(self)` | `print(obj)`, `str(obj)` | Human-readable string |
+| `__repr__(self)` | REPL, `repr(obj)` | Unambiguous developer string |
+| `__format__(self, spec)` | `f"{obj:spec}"` | Custom format spec |
+
+> 💡 Rule of thumb: `__repr__` should ideally be valid Python that recreates the object. `__str__` is for end-user display.
+
+```python
+class Medication:
+    def __init__(self, name: str, dose_mg: float):
+        self.name    = name
+        self.dose_mg = dose_mg
+
+    def __str__(self) -> str:
+        return f"{self.name} {self.dose_mg}mg"               # for humans
+
+    def __repr__(self) -> str:
+        return f"Medication('{self.name}', {self.dose_mg})"  # for developers
+
+    def __format__(self, spec: str) -> str:
+        if spec == "short":
+            return self.name
+        return str(self)
+
+med = Medication("Amoxicillin", 500)
+print(med)               # Amoxicillin 500mg
+print(repr(med))         # Medication('Amoxicillin', 500)
+print(f"{med:short}")    # Amoxicillin
+```
+
+#### Comparison & Ordering
+
+Implement these to make your objects comparable with `==`, `<`, `>` etc. and sortable with `sorted()`.
 
 | Method | Triggered by |
 |---|---|
-| `__init__` | `MyClass()` — object construction |
-| `__str__` | `print(obj)`, `str(obj)` |
-| `__repr__` | REPL display, `repr(obj)` |
-| `__len__` | `len(obj)` |
-| `__add__` | `obj + other` |
-| `__eq__` | `obj == other` |
-| `__lt__` | `obj < other` |
-| `__getitem__` | `obj[key]` |
-| `__iter__` | `for item in obj` |
-| `__enter__` / `__exit__` | `with obj:` |
+| `__eq__(self, other)` | `obj == other` |
+| `__ne__(self, other)` | `obj != other` |
+| `__lt__(self, other)` | `obj < other` |
+| `__le__(self, other)` | `obj <= other` |
+| `__gt__(self, other)` | `obj > other` |
+| `__ge__(self, other)` | `obj >= other` |
+| `__hash__(self)` | `hash(obj)`, use in `set` / `dict` |
+
+> 💡 Use `@functools.total_ordering` to define only `__eq__` and one other (`__lt__` for example) — Python derives the rest automatically.
+
+```python
+from functools import total_ordering
+
+@total_ordering
+class BloodPressureReading:
+    def __init__(self, systolic: int, diastolic: int):
+        self.systolic  = systolic
+        self.diastolic = diastolic
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, BloodPressureReading):
+            return NotImplemented
+        return self.systolic == other.systolic and self.diastolic == other.diastolic
+
+    def __lt__(self, other: "BloodPressureReading") -> bool:
+        return self.systolic < other.systolic   # sort by systolic pressure
+
+    def __str__(self) -> str:
+        return f"{self.systolic}/{self.diastolic} mmHg"
+
+readings = [
+    BloodPressureReading(140, 90),
+    BloodPressureReading(120, 80),
+    BloodPressureReading(160, 95),
+]
+
+print(sorted(readings))           # [120/80 mmHg, 140/90 mmHg, 160/95 mmHg]
+print(readings[0] > readings[1])  # True
+```
+
+#### Container & Sequence Behaviour
+
+Implement these to make your objects behave like lists, dicts, or other collections.
+
+| Method | Triggered by |
+|---|---|
+| `__len__(self)` | `len(obj)` |
+| `__getitem__(self, key)` | `obj[key]` |
+| `__setitem__(self, key, val)` | `obj[key] = val` |
+| `__delitem__(self, key)` | `del obj[key]` |
+| `__contains__(self, item)` | `item in obj` |
+| `__iter__(self)` | `for x in obj`, unpacking |
+| `__next__(self)` | `next(obj)` |
+
+```python
+class Ward:
+    """A hospital ward that behaves like a collection of patients."""
+
+    def __init__(self, name: str):
+        self.name      = name
+        self._patients: list[str] = []
+
+    def admit(self, patient_name: str):
+        self._patients.append(patient_name)
+
+    def __len__(self) -> int:
+        return len(self._patients)
+
+    def __getitem__(self, index: int) -> str:
+        return self._patients[index]
+
+    def __contains__(self, patient_name: str) -> bool:
+        return patient_name in self._patients
+
+    def __iter__(self):
+        return iter(self._patients)
+
+    def __str__(self) -> str:
+        return f"Ward '{self.name}' ({len(self)} patients)"
+
+ward = Ward("Cardiology")
+ward.admit("Alice")
+ward.admit("Bob")
+ward.admit("Carol")
+
+print(ward)          # Ward 'Cardiology' (3 patients)
+print(len(ward))     # 3
+print(ward[0])       # Alice
+print("Bob" in ward) # True
+
+for patient in ward:   # __iter__ makes this work
+    print(f"  - {patient}")
+```
+
+#### Arithmetic Operators
+
+| Method | Triggered by | Reflected version |
+|---|---|---|
+| `__add__(self, other)` | `obj + other` | `__radd__` |
+| `__sub__(self, other)` | `obj - other` | `__rsub__` |
+| `__mul__(self, other)` | `obj * other` | `__rmul__` |
+| `__truediv__(self, other)` | `obj / other` | `__rtruediv__` |
+| `__iadd__(self, other)` | `obj += other` | — |
+
+#### Context Manager
+
+Implement `__enter__` and `__exit__` to make your object usable with `with`. This guarantees setup and teardown logic even if an exception occurs.
+
+```python
+class DatabaseConnection:
+    def __init__(self, db_name: str):
+        self.db_name   = db_name
+        self.connection = None
+
+    def __enter__(self):
+        print(f"Opening connection to {self.db_name}")
+        self.connection = f"<connection to {self.db_name}>"
+        return self                   # bound to the 'as' variable
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        print(f"Closing connection to {self.db_name}")
+        self.connection = None
+        return False                  # don't suppress exceptions
+
+with DatabaseConnection("patient_records") as db:
+    print(f"Using: {db.connection}")
+# Opening connection to patient_records
+# Using: <connection to patient_records>
+# Closing connection to patient_records  ← always runs, even on exception
+```
+
+#### Callable Objects
+
+`__call__` makes an instance callable like a function. This is useful for objects that encapsulate a single primary action or that need to carry configuration alongside their logic.
+
+```python
+class DosageCalculator:
+    """Callable object that calculates drug dosage by patient weight."""
+
+    def __init__(self, dose_per_kg: float):
+        self.dose_per_kg = dose_per_kg
+
+    def __call__(self, weight_kg: float) -> float:
+        return self.dose_per_kg * weight_kg
+
+    def __repr__(self) -> str:
+        return f"DosageCalculator({self.dose_per_kg}mg/kg)"
+
+amoxicillin_dose = DosageCalculator(dose_per_kg=25)   # 25 mg per kg
+
+print(amoxicillin_dose(60))        # 1500.0  — 60 kg patient
+print(amoxicillin_dose(80))        # 2000.0  — 80 kg patient
+print(callable(amoxicillin_dose))  # True
+```
+
+### Quick Reference
+
+| Category | Methods | Protocol / Enables |
+|---|---|---|
+| **Construction** | `__init__`, `__new__`, `__del__` | Object lifecycle |
+| **Representation** | `__str__`, `__repr__`, `__format__` | `print()`, REPL, f-strings |
+| **Comparison** | `__eq__`, `__lt__`, `__hash__` | `==`, sorting, `set`/`dict` keys |
+| **Arithmetic** | `__add__`, `__sub__`, `__mul__`, … | `+`, `-`, `*`, `+=`, … |
+| **Container** | `__len__`, `__getitem__`, `__iter__`, `__contains__` | `len()`, `[]`, `for`, `in` |
+| **Context manager** | `__enter__`, `__exit__` | `with` statement |
+| **Callable** | `__call__` | `obj(args)` |
+| **Attribute access** | `__getattr__`, `__setattr__`, `__delattr__` | `.` access, `setattr()` |
 
 ---
 
@@ -443,4 +793,8 @@ print(product)  # Keyboard (£49.99) — 20 in stock
 Now that you understand the building blocks, move on to the four core concepts of OOP:
 
 **[Core Concepts of OOP](./01_core_concepts.md)**
+
+---
+
+[Back to Menu](../README.md) | [Next: Core Concepts](./01_core_concepts.md)
 
