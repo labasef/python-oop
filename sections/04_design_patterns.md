@@ -855,8 +855,7 @@ Do NOT:
 
 - "Design Patterns: Elements of Reusable Object-Oriented Software" - Gang of Four
 - "Refactoring: Improving the Design of Existing Code" - Martin Fowler
-- Real Python Design Patterns
-- Python Design Patterns Online
+- [Refactoring Guru Design Patterns](https://refactoring.guru/design-patterns/python)
 
 ---
 

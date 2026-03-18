@@ -791,7 +791,37 @@ By using abstraction, we enforce a contract that subclasses must follow, ensurin
 
 Composition is the practice of building complex objects by combining simpler objects, rather than by inheriting from parent classes. Instead of an object *being* a type of something, it *has* parts that provide specific functionality.
 
-> **Analogy**: A car *has* an engine, wheels, and a transmission — it doesn't *inherit* from them. Each component can be swapped independently. A piano *has* strings, a soundboard, and keys — the piano doesn't *inherit* from those parts; it *composes* them.
+> 💡 **Analogy**: A car *has* an engine, wheels, and a transmission — it doesn't *inherit* from them. Each component can be swapped independently. A piano *has* strings, a soundboard, and keys — the piano doesn't *inherit* from those parts; it *composes* them.
+
+### The Mechanics: HAS-A is Implemented via Object Attributes
+
+The key distinction between Inheritance (IS-A) and Composition (HAS-A) comes down to **how you store the related objects**:
+
+| Mechanism | How you relate to the other object | Implementation |
+|---|---|---|
+| **Inheritance (IS-A)** | You *are* a type of it | Extend the class with `: ParentClass` |
+| **Composition (HAS-A)** | You *have* an instance of it | Store it as an attribute: `self.part = SomeClass()` |
+
+```python
+# IS-A: Dog extends Animal — you ARE an Animal
+class Animal:
+    pass
+
+class Dog(Animal):  # ← IS-A relationship via inheritance
+    pass
+
+# HAS-A: Engine is stored as an attribute — you HAVE an Engine
+class Engine:
+    pass
+
+class Car:
+    def __init__(self):
+        self.engine = Engine()  # ← HAS-A relationship via object attribute
+```
+
+That's it. Composition is storing other objects as instance attributes. The simplicity is deceptive — this single technique is incredibly powerful.
+
+---
 
 ### Composition vs. Inheritance — The Key Difference
 
@@ -805,8 +835,19 @@ graph TD
     subgraph Inheritance["Inheritance (IS-A)"]
         A1["Animal (parent)"]
         B1["Dog (child)"]
-        A1 -->|inherits| B1
+        A1 -->|extends| B1
     end
+
+    subgraph Composition["Composition (HAS-A)"]
+        C1["Engine (attribute)"]
+        C2["Wheels (attribute)"]
+        C3["Car"]
+        C3 -->|self.engine| C1
+        C3 -->|self.wheels| C2
+    end
+```
+
+---
 
     subgraph Composition["Composition (HAS-A)"]
         C1["Engine"]
