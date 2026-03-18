@@ -13,6 +13,7 @@ Understanding and applying OOP principles and the SOLID design principles can he
 2. **Inheritance** promotes code reuse but can lead to tight coupling
 3. **Polymorphism** enables flexible, interchangeable code
 4. **Abstraction** simplifies complex systems and hides implementation details
+5. **Composition** is often more flexible than inheritance for code reuse
 
 ### SOLID Principles
 1. **Single Responsibility**: Each class should have one reason to change
