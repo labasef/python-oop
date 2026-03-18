@@ -7,6 +7,7 @@ By the end of this section, you should be able to:
 - Create class hierarchies using inheritance to promote code reuse
 - Apply polymorphism to write flexible, interchangeable code
 - Use abstraction to hide complexity and expose clean interfaces
+- Design flexible systems using composition over inheritance
 
 ---
 
@@ -107,6 +108,29 @@ classDiagram
         +String model
     }
 ```
+
+### The IS-A Relationship
+
+Inheritance models **"IS-A"** relationships — when a child class represents a more specific type of the parent class. A Dog *is-a* type of Animal. An ElectricCar *is-a* type of Vehicle. The child class inherits all the parent's behaviour and data, but can add or override specifics.
+
+```python
+class Animal:
+    def eat(self):
+        return "Eating..."
+
+class Dog(Animal):
+    """A Dog IS-A Animal — it inherits eat() and adds new behavior."""
+    def bark(self):
+        return "Woof!"
+
+dog = Dog()
+print(dog.eat())   # Inherited from Animal
+print(dog.bark())  # Specific to Dog
+```
+
+**Key principle**: Use inheritance when the relationship is stable and captures a fundamental truth about the types. A Penguin IS-A Bird. A SavingsAccount IS-A BankAccount. But a Person and a Doctor — that's not an IS-A relationship (a person *has* a job, not *is* a job) — that's better modelled with composition (see [Section 5: Composition](#5-composition)).
+
+---
 
 ```python
 class Vehicle:
@@ -758,6 +782,306 @@ print(dog.make_sound())  # Bark
 ```
 
 By using abstraction, we enforce a contract that subclasses must follow, ensuring consistency and structure in the codebase.
+
+---
+
+## 5. Composition
+
+> *"Favour composition over inheritance."* — Gang of Four, Design Patterns
+
+Composition is the practice of building complex objects by combining simpler objects, rather than by inheriting from parent classes. Instead of an object *being* a type of something, it *has* parts that provide specific functionality.
+
+> **Analogy**: A car *has* an engine, wheels, and a transmission — it doesn't *inherit* from them. Each component can be swapped independently. A piano *has* strings, a soundboard, and keys — the piano doesn't *inherit* from those parts; it *composes* them.
+
+### Composition vs. Inheritance — The Key Difference
+
+| Concept | Relationship | Use case | Flexibility |
+|---|---|---|---|
+| **Inheritance** | "IS-A" | A Dog *is-a* Animal | Rigid — hierarchy is baked in |
+| **Composition** | "HAS-A" | A Car *has-a* Engine | Flexible — parts can be swapped |
+
+```mermaid
+graph TD
+    subgraph Inheritance["Inheritance (IS-A)"]
+        A1["Animal (parent)"]
+        B1["Dog (child)"]
+        A1 -->|inherits| B1
+    end
+
+    subgraph Composition["Composition (HAS-A)"]
+        C1["Engine"]
+        C2["Wheels"]
+        C3["Car"]
+        C3 -->|has| C1
+        C3 -->|has| C2
+    end
+```
+
+### ❌ The Problem — Inheritance chains become rigid
+
+Inheritance locks you into a hierarchy that is hard to change:
+
+```python
+# ❌ Bad: Rigid hierarchy — if requirements change, the whole structure breaks
+
+class Animal:
+    def eat(self):
+        return "Eating..."
+
+class FlyingAnimal(Animal):
+    def fly(self):
+        return "Flying..."
+
+class SwimmingAnimal(Animal):
+    def swim(self):
+        return "Swimming..."
+
+class Duck(FlyingAnimal, SwimmingAnimal):  # ← Multiple inheritance to get both
+    pass
+
+duck = Duck()
+duck.fly()    # Works
+duck.swim()   # Works
+```
+
+**What's wrong:**
+- A Duck is both flying and swimming, but the hierarchy forces you to choose multiple inheritance
+- If you need a penguin that swims but doesn't fly, you'd have to refactor the entire hierarchy
+- Changing what an animal can do requires changing its class — you can't compose abilities
+
+### ✅ The Fix — Composition lets you mix and match
+
+With composition, each behaviour is a separate object that you can plug in:
+
+```python
+# ✅ Good: Flexible composition — mix and match abilities
+
+from abc import ABC, abstractmethod
+
+class Ability(ABC):
+    @abstractmethod
+    def perform(self) -> str:
+        pass
+
+class Flying(Ability):
+    def perform(self) -> str:
+        return "Flying through the air"
+
+class Swimming(Ability):
+    def perform(self) -> str:
+        return "Swimming in water"
+
+class Running(Ability):
+    def perform(self) -> str:
+        return "Running on land"
+
+
+class Animal:
+    """Compose abilities into an animal."""
+    def __init__(self, name: str, abilities: list[Ability]):
+        self.name = name
+        self.abilities = abilities  # ← HAS-A abilities, not IS-A subtype
+
+    def perform_abilities(self):
+        for ability in self.abilities:
+            print(f"{self.name}: {ability.perform()}")
+
+
+# Create animals by composing abilities — no rigid hierarchy!
+duck = Animal("Duck", [Flying(), Swimming()])
+penguin = Animal("Penguin", [Swimming(), Running()])
+eagle = Animal("Eagle", [Flying(), Running()])
+
+duck.perform_abilities()
+# Duck: Flying through the air
+# Duck: Swimming in water
+
+penguin.perform_abilities()
+# Penguin: Swimming in water
+# Penguin: Running on land
+
+eagle.perform_abilities()
+# Eagle: Flying through the air
+# Eagle: Running on land
+```
+
+**The advantage**: Add a new animal? Just compose the abilities it needs. Add a new ability? No existing code changes. Complete flexibility.
+
+---
+
+### Medical domain example — Inheritance vs. Composition
+
+Inheritance becomes problematic when requirements cross hierarchy boundaries:
+
+#### ❌ With Inheritance — rigid, inflexible
+
+```python
+# ❌ Bad: Brittle hierarchy
+
+class Person:
+    def __init__(self, name: str):
+        self.name = name
+
+class Doctor(Person):
+    def diagnose(self) -> str:
+        return "Diagnosing patient..."
+
+class Nurse(Person):
+    def care_for_patient(self) -> str:
+        return "Caring for patient..."
+
+class Surgeon(Doctor):
+    def operate(self) -> str:
+        return "Performing surgery..."
+
+# Problem: What if you need a person who is both a Doctor AND a Nurse?
+# Multiple inheritance is messy and leads to complications (Diamond Problem)
+class GeneralPractitioner(Doctor, Nurse):  # ← Messy multiple inheritance
+    pass
+```
+
+#### ✅ With Composition — flexible, maintainable
+
+```python
+# ✅ Good: Compose roles and qualifications
+
+from abc import ABC, abstractmethod
+
+class Role(ABC):
+    @abstractmethod
+    def describe(self) -> str:
+        pass
+
+class Doctor(Role):
+    def describe(self) -> str:
+        return "Doctor — diagnoses and prescribes"
+
+class Nurse(Role):
+    def describe(self) -> str:
+        return "Nurse — provides patient care"
+
+class Surgeon(Role):
+    def describe(self) -> str:
+        return "Surgeon — performs operations"
+
+
+class Certification(ABC):
+    @abstractmethod
+    def verify(self) -> bool:
+        pass
+
+class MD(Certification):
+    def verify(self) -> bool:
+        return True  # Has medical degree
+
+class RN(Certification):
+    def verify(self) -> bool:
+        return True  # Has nursing degree
+
+
+class HospitalStaff:
+    """Compose roles and certifications."""
+    def __init__(self, name: str, roles: list[Role], certifications: list[Certification]):
+        self.name = name
+        self.roles = roles
+        self.certifications = certifications
+
+    def describe(self) -> str:
+        role_names = [role.describe() for role in self.roles]
+        certs = [cert.__class__.__name__ for cert in self.certifications]
+        return f"{self.name}: {', '.join(role_names)} (Certified: {', '.join(certs)})"
+
+
+# Create staff by composing roles and certifications
+general_practitioner = HospitalStaff("Dr. Alice", [Doctor(), Nurse()], [MD(), RN()])
+surgeon = HospitalStaff("Dr. Bob", [Surgeon(), Doctor()], [MD()])
+
+print(general_practitioner.describe())
+# Dr. Alice: Doctor — diagnoses and prescribes, Nurse — provides patient care (Certified: MD, RN)
+
+print(surgeon.describe())
+# Dr. Bob: Surgeon — performs operations, Doctor — diagnoses and prescribes (Certified: MD)
+```
+
+Now a person can have *any combination* of roles and certifications. No hierarchy, no multiple inheritance headaches.
+
+---
+
+### When to Use Composition vs. Inheritance
+
+| Use Inheritance | Use Composition |
+|---|---|
+| "IS-A" relationships that are stable | "HAS-A" relationships, especially if flexible |
+| Sharing implementation across a family of types | Providing optional or swappable behaviours |
+| The hierarchy is unlikely to change | Requirements cross-cut the hierarchy |
+| You want to override specific methods | You want to mix and match independent parts |
+| Type checking / polymorphism by type | Polymorphism by behaviour/capability |
+
+**Practical rule**: If you find yourself doing multiple inheritance or uncertain about the hierarchy, use composition instead.
+
+---
+
+### Common Composition Patterns
+
+#### 1. Dependency Injection (Composition of Services)
+
+```python
+# Compose dependencies into a service
+class EmailService:
+    def send(self, to: str, body: str):
+        print(f"Sending email to {to}")
+
+class NotificationService:
+    def __init__(self, email_service: EmailService):
+        self.email = email_service  # ← Composed dependency
+
+    def notify_user(self, user_email: str, message: str):
+        self.email.send(user_email, message)
+```
+
+#### 2. Decorator (Wrapping to Add Behaviour)
+
+```python
+# Compose decorators to add features
+class DataProcessor:
+    def process(self, data: list[int]) -> list[int]:
+        return data
+
+class SortDecorator:
+    def __init__(self, processor: DataProcessor):
+        self.processor = processor
+
+    def process(self, data: list[int]) -> list[int]:
+        result = self.processor.process(data)
+        return sorted(result)
+
+class FilterDecorator:
+    def __init__(self, processor: DataProcessor):
+        self.processor = processor
+
+    def process(self, data: list[int]) -> list[int]:
+        result = self.processor.process(data)
+        return [x for x in result if x > 0]
+
+# Compose filters and sorting
+processor = FilterDecorator(SortDecorator(DataProcessor()))
+result = processor.process([3, -1, 2, 0, -5, 1])
+print(result)  # [1, 2, 3]
+```
+
+---
+
+### Composition Checklist
+
+Before choosing between inheritance and composition:
+
+- [ ] Is the relationship truly "IS-A" and stable over time?
+- [ ] Will subclasses need to override *multiple* methods, or just provide variants?
+- [ ] Could the functionality be better expressed as a collection of independent parts?
+- [ ] If requirements change, would the hierarchy need restructuring?
+- [ ] Do I find myself using multiple inheritance to express the design?
+
+If you answer "no" to the first two or "yes" to the last three, use composition.
 
 ---
 
